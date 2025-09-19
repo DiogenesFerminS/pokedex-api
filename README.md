@@ -21,7 +21,17 @@ npm i -g @nestjs/cli
 docker compose up -d
 ```
 
-5. Reconstruir la DB con la semilla
+5. Clonar el archivo __.env.example__ y renombrar la copia a __.env__
+
+6. Asignar las variables de entorno definidas en el __.env__
+
+7. Ejecutar la aplicacion en dev:
+
+```
+npm run start:dev
+```
+
+8. Reconstruir la DB con la semilla
 ```
 http://localhost:3000/api/v1/pokemon
 ```

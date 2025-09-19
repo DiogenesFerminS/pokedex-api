@@ -10,12 +10,18 @@ import { MongoServerError } from 'mongodb';
 
 import { CreatePokemonDto, UpdatePokemonDto } from './dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PokemonService {
+  private defaultLimit: number;
+
   constructor(
     @InjectModel(Pokemon.name) private readonly pokemonModel: Model<Pokemon>,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.defaultLimit = this.configService.getOrThrow<number>('DEFAULT_LIMIT');
+  }
 
   async create(createPokemonDto: CreatePokemonDto) {
     createPokemonDto.name = createPokemonDto.name.toLowerCase();
@@ -37,7 +43,7 @@ export class PokemonService {
   }
 
   findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = this.defaultLimit, offset = 0 } = paginationDto;
 
     return this.pokemonModel.find().limit(limit).skip(offset).select('-__v');
   }
