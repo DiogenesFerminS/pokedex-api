@@ -1,22 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PokeResult } from './interfaces/poke-response.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Pokemon } from 'src/pokemon/entities/pokemon.entity';
+import { Model } from 'mongoose';
+import { FetchAdapter } from 'src/common/adapters/fetch.adapter';
 
 @Injectable()
 export class SeedService {
-  async generate() {
-    const result = await fetch('https://pokeapi.co/api/v2/pokemon?limit=3');
-    const resp = (await result.json()) as PokeResult;
+  constructor(
+    @InjectModel(Pokemon.name) private pokemonModel: Model<Pokemon>,
+    private readonly http: FetchAdapter,
+  ) {}
 
-    resp.results.forEach(({ name, url }) => {
+  async generate() {
+    await this.pokemonModel.deleteMany();
+    const resp = await this.http.get<PokeResult>(
+      'https://pokeapi.co/api/v2/pokemon?limit=650',
+    );
+
+    const pokes = resp.results.map(({ name, url }) => {
       const segs = url.split('/');
       const no = +segs[+segs.length - 2];
       const poke = {
         name,
         no,
       };
-      console.log(poke);
+      return poke;
     });
 
-    return resp.results;
+    try {
+      const result = await this.pokemonModel.insertMany(pokes, {
+        ordered: false,
+        rawResult: true,
+      });
+
+      return `Se han insertado ${result.insertedCount}`;
+    } catch {
+      throw new BadRequestException('Fallo al insertar los Datos');
+    }
   }
 }

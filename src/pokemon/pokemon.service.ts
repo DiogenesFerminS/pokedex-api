@@ -9,6 +9,7 @@ import { Model, isValidObjectId } from 'mongoose';
 import { MongoServerError } from 'mongodb';
 
 import { CreatePokemonDto, UpdatePokemonDto } from './dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class PokemonService {
@@ -35,8 +36,10 @@ export class PokemonService {
     }
   }
 
-  findAll() {
-    return this.pokemonModel.find();
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return this.pokemonModel.find().limit(limit).skip(offset).select('-__v');
   }
 
   async findOne(term: string) {
