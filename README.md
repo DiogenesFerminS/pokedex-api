@@ -36,6 +36,15 @@ npm run start:dev
 http://localhost:3000/api/v1/pokemon
 ```
 
+# Ejecutar en produccion
+1. Crear el archivo __.env.prod__
+2. Rellenar el archivo __.env.prod__
+3. Crear la imagen de docker
+
+```
+docker-compose -f docker-compose.prod.yaml --env-file .env.prod up --build
+```
+
 ## Stack usado
 * MongoDB
 * Nest
